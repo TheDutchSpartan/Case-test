@@ -369,7 +369,7 @@ st.title("COVID-19 Cases Map")
 st.write("This map visualizes confirmed COVID-19 cases by region. Use the legend to interpret the colors and view details by clicking on the markers.")
 
 # Embed the map HTML in Streamlit
-st.components.v1.html(map_html, width=700, height=500)
+st.components.v1.html(map_html, width=600, height=500)
 
 
 st.write(f"Total execution time: {end_time - start_time} seconds")
