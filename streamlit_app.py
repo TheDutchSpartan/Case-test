@@ -384,7 +384,7 @@ m.save("C:\\Users\\Jym\\Desktop\\covid_map.html")
 m.get_root().html.add_child(folium.Element(description_html))
 
 # To display the map in a Jupyter Notebook, use the following line
-m
+st.components.v1.html(mHTML, height = 2000)
 
 
 st.write(f"Total execution time: {end_time - start_time} seconds")
