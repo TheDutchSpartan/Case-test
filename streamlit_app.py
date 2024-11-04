@@ -9,7 +9,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 import json
-from sklearn.linear_model import LinearRegression
+import scikit-learn
+from scikit-learn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 
 # ======================================================================================================================================== #
