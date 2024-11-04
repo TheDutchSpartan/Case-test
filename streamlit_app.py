@@ -363,7 +363,20 @@ for city in df_filtered.itertuples():
             fill_color=get_color(city.confirmed),
             fill_opacity=0.6
         ).add_to(marker_cluster)
-
+description_html = '''
+<div style="position: fixed; 
+         bottom: 10px; left: 10px; width: 300px; height: auto; 
+         z-index:9999; font-size:14px; 
+         background-color: white; opacity: .8;
+         padding: 10px;">
+<b>Description:</b><br>
+This map visualizes the confirmed COVID-19 cases by region. 
+Each circle represents the number of confirmed cases in a location, 
+with the size corresponding to the number of cases. 
+The color indicates severity, with green for low cases and crimson for high cases.
+This allows for a clear understanding of the pandemic's spread.
+</div>
+'''
 # Save the map to an HTML file
 m.save("C:\\Users\\Jym\\Desktop\\covid_map.html")
 
