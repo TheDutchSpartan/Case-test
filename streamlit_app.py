@@ -283,7 +283,7 @@ end_time = time.perf_counter()
 
 
 # Load the CSV data into a DataFrame
-data = pd.read_csv("C:\\Users\\Jym\\Desktop\\Case2vb.csv")
+data = pd.read_csv("Case2vb.csv")
 df = pd.DataFrame(data)
 
 # Function to parse the 'region' column
