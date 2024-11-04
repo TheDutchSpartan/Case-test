@@ -278,5 +278,100 @@ Door de volledigheid en betrouwbaarheid van de data te waarborgen, zullen de inz
 st.subheader('Disclaimer')
 st.write("""Ook al bevat de dataset geen ontbrekenden waarden, zijn de provincies niet altijd accuraat. Zo zijn er EU-landen die wel provincies/regio's bevatten, maar dat niet is aangegeven in de dataset. Zo lijkt het dus alsof sommige landen geen provincies hebben terwijl dit wel het geval is.""")
 end_time = time.perf_counter()
+# ======================================================================================================================================== #
+import math
+import folium
+import pandas as pd
+import json
+from folium.plugins import FloatImage, MarkerCluster
+
+# Load the CSV data into a DataFrame
+data = pd.read_csv("C:\\Users\\Jym\\Desktop\\Case2vb.csv")
+df = pd.DataFrame(data)
+
+# Function to parse the 'region' column
+def parse_region(region_str):
+    try:
+        if isinstance(region_str, str):
+            return json.loads(region_str.replace("'", "\""))  # Handle single quotes if present
+        return region_str  # If already a dictionary, return as is
+    except json.JSONDecodeError:
+        return {}  # Return an empty dictionary if parsing fails
+
+# Apply parsing to the 'region' column
+df['region'] = df['region'].apply(parse_region)
+
+# Extract 'lat' and 'long' from the parsed 'region' dictionaries
+df['Lat'] = df['region'].apply(lambda x: x.get('lat'))
+df['Lon'] = df['region'].apply(lambda x: x.get('long'))
+df['province'] = df['region'].apply(lambda x: x.get('province'))
+df['name'] = df['region'].apply(lambda x: x.get('name'))
+
+# Convert 'Lat' and 'Lon' to numeric, coercing errors to NaN
+df['Lat'] = pd.to_numeric(df['Lat'], errors='coerce')
+df['Lon'] = pd.to_numeric(df['Lon'], errors='coerce')
+
+# Filter data to avoid clutter (e.g., show only locations with confirmed cases > 0)
+df_filtered = df[df['confirmed'] > 0]
+
+# Create a Folium map
+m = folium.Map(location=[35, 0], tiles="OpenStreetMap", zoom_start=4)
+
+# Add a legend with colored boxes
+legend_html = '''
+<div style="position: fixed; 
+         top: 10px; right: 10px; width: 200px; height: auto; 
+         z-index:9999; font-size:14px; 
+         background-color: white; opacity: .8;
+         padding: 10px;">
+&emsp;<b>Legend</b><br>
+&emsp;<i style="background: green; width: 20px; height: 20px; display: inline-block;"></i>&emsp;0-100 Cases<br>
+&emsp;<i style="background: yellow; width: 20px; height: 20px; display: inline-block;"></i>&emsp;101-1000 Cases<br>
+&emsp;<i style="background: orange; width: 20px; height: 20px; display: inline-block;"></i>&emsp;1001-5000 Cases<br>
+&emsp;<i style="background: crimson; width: 20px; height: 20px; display: inline-block;"></i>&emsp;5001+ Cases<br>
+</div>
+'''
+m.get_root().html.add_child(folium.Element(legend_html))
+
+# Create a marker cluster for better performance
+marker_cluster = MarkerCluster().add_to(m)
+
+# Define a function to get color based on the number of confirmed cases
+def get_color(cases):
+    if cases <= 100:
+        return 'green'
+    elif cases <= 1000:
+        return 'yellow'
+    elif cases <= 5000:
+        return 'orange'
+    else:
+        return 'crimson'
+
+# Iterate over the filtered DataFrame to add markers to the map
+for city in df_filtered.itertuples():
+    if pd.notna(city.Lat) and pd.notna(city.Lon):  # Ensure coordinates are valid
+        folium.CircleMarker(
+            location=[city.Lat, city.Lon],
+            popup=(f'Country name: {city.name}<br>'
+                   f'Country ABV: {city.country}<br>'
+                   f'Province: {city.province}<br>'
+                   f'Confirmed: {city.confirmed}<br>'
+                   f'Deaths: {city.deaths}'),
+            radius=float(city.confirmed) * 0.00001,  # Adjust the size based on confirmed cases
+            color=get_color(city.confirmed),
+            fill=True,
+            fill_color=get_color(city.confirmed),
+            fill_opacity=0.6
+        ).add_to(marker_cluster)
+
+# Save the map to an HTML file
+m.save("C:\\Users\\Jym\\Desktop\\covid_map.html")
+
+
+m.get_root().html.add_child(folium.Element(description_html))
+
+# To display the map in a Jupyter Notebook, use the following line
+display(m)
+
 
 st.write(f"Total execution time: {end_time - start_time} seconds")
