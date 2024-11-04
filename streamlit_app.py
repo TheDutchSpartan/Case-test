@@ -366,7 +366,7 @@ map_html = m._repr_html_()
 
 # Streamlit Application Layout
 st.title("COVID-19 Cases Map")
-st.write("This map visualizes confirmed COVID-19 cases by region. Use the legend to interpret the colors and view details by clicking on the markers.")
+st.write("Deze kaart visualiseert bevestigde COVID-19-gevallen per regio. Gebruik de legenda om de kleuren te interpreteren en details te bekijken door op de markeringen te klikken")
 
 # Embed the map HTML in Streamlit
 st.components.v1.html(map_html, width=800, height=600)
