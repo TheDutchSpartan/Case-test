@@ -1,6 +1,8 @@
 import time
 start_time = time.perf_counter()
-
+import folium
+import json
+from folium.plugins import MarkerCluster
 import streamlit as st 
 import requests 
 import pandas as pd 
@@ -12,7 +14,6 @@ import plotly.express as px
 import numpy 
 import numpy as np
 
-import json
 
 # ======================================================================================================================================== #
 # Title and introduction sectie voor de Streamlit app
@@ -279,14 +280,10 @@ st.subheader('Disclaimer')
 st.write("""Ook al bevat de dataset geen ontbrekenden waarden, zijn de provincies niet altijd accuraat. Zo zijn er EU-landen die wel provincies/regio's bevatten, maar dat niet is aangegeven in de dataset. Zo lijkt het dus alsof sommige landen geen provincies hebben terwijl dit wel het geval is.""")
 end_time = time.perf_counter()
 # ======================================================================================================================================== #
-import math
-import folium
-import pandas as pd
-import json
-from folium.plugins import FloatImage, MarkerCluster
+
 
 # Load the CSV data into a DataFrame
-data = pd.read_csv("Case2vb.csv")
+data = pd.read_csv("C:\\Users\\Jym\\Desktop\\Case2vb.csv")
 df = pd.DataFrame(data)
 
 # Function to parse the 'region' column
@@ -363,28 +360,16 @@ for city in df_filtered.itertuples():
             fill_color=get_color(city.confirmed),
             fill_opacity=0.6
         ).add_to(marker_cluster)
-description_html = '''
-<div style="position: fixed; 
-         bottom: 10px; left: 10px; width: 300px; height: auto; 
-         z-index:9999; font-size:14px; 
-         background-color: white; opacity: .8;
-         padding: 10px;">
-<b>Description:</b><br>
-This map visualizes the confirmed COVID-19 cases by region. 
-Each circle represents the number of confirmed cases in a location, 
-with the size corresponding to the number of cases. 
-The color indicates severity, with green for low cases and crimson for high cases.
-This allows for a clear understanding of the pandemic's spread.
-</div>
-'''
-# Save the map to an HTML file
-m.save("C:\\Users\\Jym\\Desktop\\covid_map.html")
 
+# Render the map as HTML
+map_html = m._repr_html_()
 
-m.get_root().html.add_child(folium.Element(description_html))
+# Streamlit Application Layout
+st.title("COVID-19 Cases Map")
+st.write("This map visualizes confirmed COVID-19 cases by region. Use the legend to interpret the colors and view details by clicking on the markers.")
 
-# To display the map in a Jupyter Notebook, use the following line
-st.components.v1.html(m, height = 2000)
+# Embed the map HTML in Streamlit
+st.components.v1.html(map_html, width=700, height=500)
 
 
 st.write(f"Total execution time: {end_time - start_time} seconds")
