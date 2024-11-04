@@ -9,9 +9,9 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 import json
-import scikit-learn
-from scikit-learn.linear_model import LinearRegression
-from scikit-learn.metrics import r2_score
+import sklearn
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 # ======================================================================================================================================== #
 # Title and introduction sectie voor de Streamlit app
