@@ -11,7 +11,7 @@ import numpy as np
 import json
 import scikit-learn
 from scikit-learn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
+from scikit-learn.metrics import r2_score
 
 # ======================================================================================================================================== #
 # Title and introduction sectie voor de Streamlit app
