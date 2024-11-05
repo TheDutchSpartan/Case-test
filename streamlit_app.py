@@ -129,19 +129,6 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-# Apply parsing to the `region` column
-covid_df_EU['region'] = covid_df_EU['region'].apply(parse_region)
-
-# Extract `province` from the parsed `region` dictionaries
-covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province', 'Unknown'))
-
-# Filter out rows where province is 'Unknown'
-covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
-
-# Zoekt naar missende data
-missing_data = covid_df_EU.isnull().sum()
-missing_data_count = missing_data.sum()
-
 # Toont missende data
 st.subheader('Missende Data Overzicht')
 if missing_data_count == 0:
@@ -150,15 +137,6 @@ else:
     st.write('Een overzicht van de missende data in de dataset:')
     st.dataframe(missing_data)
 
-# Extract province data en haalt de entries weg waar province is 'Unknown'
-covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province'))
-covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
-
-# Groepeer de data bij province en calculate de som van confirmed cases en deaths
-province_data_EU = covid_df_EU.groupby(['province', 'country_name']).agg({'confirmed': 'sum', 'deaths': 'sum', 'fatality_rate': 'mean'}).reset_index()
-province_data_EU = province_data_EU.reindex(columns=['country_name', 'province', 'confirmed', 'deaths', 'fatality_rate'])
-province_data_EU = province_data_EU.sort_values(by='country_name', ascending=True)
-selected_country = st.selectbox('Selecteer een land', covid_df_EU['country_name'].unique())
 
 # Filter data for the selected country
 country_data = covid_df_EU[covid_df_EU['country_name'] == selected_country]
