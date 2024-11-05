@@ -360,7 +360,6 @@ for city in df_filtered.itertuples():
         folium.CircleMarker(
             location=[city.Lat, city.Lon],
             popup=(f'Country name: {city.name}<br>'
-                   f'Country ABV: {city.country}<br>'
                    f'Province: {city.province}<br>'
                    f'Confirmed: {city.confirmed}<br>'
                    f'Deaths: {city.deaths}'),
