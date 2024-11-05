@@ -68,7 +68,7 @@ st.write("""Kies hieronder een land en een provincie om de specifieke stijgingsp
 # Titel voor het dashboard
 st.header('COVID-19 Toename Percentage Dashboard')
 # Load the CSV file
-covid_df_EU = pd.read_csv("Case2vb.csv")
+covid_df_EU = pd.read_csv("Case2vb_preprocessed.csv")
 
 # Check if region column needs parsing
 def parse_region(region_str):
