@@ -270,8 +270,8 @@ filtered_data = scatter_data[(scatter_data['confirmed_08'] >= confirmed_range[0]
 max_y_value = filtered_data['deaths_08'].max() if not filtered_data.empty else 80000  # Standaardwaarde als de data leeg is
 
 # Regressie berekenen op de volledige dataset (niet gefilterd)
-x_full = scatter_data['confirmed_08'].values.reshape(-1, 1)
-y_full = scatter_data['deaths_08'].values
+x_full = scatter_data['deaths_08'].values
+y_full = scatter_data['confirmed_08'].values.reshape(-1, 1)
 model = LinearRegression()
 model.fit(x_full, y_full)
 y_pred_full = model.predict(x_full)
