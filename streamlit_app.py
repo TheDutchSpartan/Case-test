@@ -55,44 +55,6 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-fig = go.Figure()
-# Toevoegen van Bar traces voor de comfirmed cases en deaths for elke land
-for country in covid_df_EU['country_name'].unique():
-    fig.add_trace(go.Bar(x=covid_df_EU['province'],
-                        y=covid_df_EU['confirmed'],
-                        name=f'{country} gediagnosticeerde',
-                        visible=False,
-                        marker_color='blue'))
-    fig.add_trace(go.Bar(x=covid_df_EU['province'],
-                        y=covid_df_EU['deaths'],
-                        name=f'{country} sterfgevallen',
-                        visible=False,
-                        marker_color='red'))
-#Dit maakt het eerste land zijn data visible by defeault
-fig.data[0].visible=True
-fig.data[1].visible=True
-# Dropdown menu voor kiezen van verschillende landen
-dropdown_buttons = []
-
-for country in covid_df_EU['country_name'].unique():
-    dropdown_buttons.append({
-        'label':country,
-        'method':'update',
-        'args':[{'visible': [name.startswith(country) for name in [trace.name for trace in fig.data]]},
-        {'title':f'COVID-19 Gegevens voor {country}'}]
-    })
-# Update layout voor het plotly figuur, met een dropdown en titles
-fig.update_layout(
-    title = 'COVID-19 Gediagnosticeerde en Sterfgevallen per Provincie',
-    xaxis_title = 'Provincie',
-    yaxis_title = 'Aantal',
-    barmode = 'group',
-    updatemenus = [{'buttons':dropdown_buttons,
-                    'showactive':True,
-                    'direction':'down'}]
-)
-#weergeven van plot in streamlit
-st.plotly_chart(fig)
 
 # =================================================================================================================================== #
 #Doormiddel van streamlit schrijven we headers en een stuk tekst
@@ -105,7 +67,10 @@ st.write("""Kies hieronder een land en een provincie om de specifieke stijgingsp
 
 # Titel voor het dashboard
 st.header('COVID-19 Toename Percentage Dashboard')
-# Check if `region` column needs parsing
+# Load the CSV file
+covid_df_EU = pd.read_csv("Case2vb.csv")
+
+# Check if region column needs parsing
 def parse_region(region_str):
     try:
         # Convert JSON string to dictionary if needed
@@ -114,8 +79,36 @@ def parse_region(region_str):
         return region_str  # If already a dictionary, return as is
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
-# Groepeer de data bij province en calculate de som van confirmed cases en deaths
 
+# Apply parsing to the region column
+covid_df_EU['region'] = covid_df_EU['region'].apply(parse_region)
+
+# Extract province from the parsed region dictionaries
+covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province', 'Unknown'))
+
+# Filter out rows where province is 'Unknown'
+covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
+
+# Zoekt naar missende data
+missing_data = covid_df_EU.isnull().sum()
+missing_data_count = missing_data.sum()
+
+# Toont missende data
+st.subheader('Missende Data Overzicht')
+if missing_data_count == 0:
+    st.write('Geen missende data gevonden. Alle onderdelen zijn compleet.')
+else:
+    st.write('Een overzicht van de missende data in de dataset:')
+    st.dataframe(missing_data)
+
+# Extract province data en haalt de entries weg waar province is 'Unknown'
+covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province'))
+covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
+
+# Groepeer de data bij province en calculate de som van confirmed cases en deaths
+province_data_EU = covid_df_EU.groupby(['province', 'country_name']).agg({'confirmed': 'sum', 'deaths': 'sum', 'fatality_rate': 'mean'}).reset_index()
+province_data_EU = province_data_EU.reindex(columns=['country_name', 'province', 'confirmed', 'deaths', 'fatality_rate'])
+province_data_EU = province_data_EU.sort_values(by='country_name', ascending=True)
 selected_country = st.selectbox('Selecteer een land', covid_df_EU['country_name'].unique())
 
 # Filter data for the selected country
