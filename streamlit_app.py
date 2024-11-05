@@ -76,21 +76,6 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-# Filter out rows where province is 'Unknown'
-covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
-
-# Zoekt naar missende data
-missing_data = covid_df_EU.isnull().sum()
-missing_data_count = missing_data.sum()
-
-# Toont missende data
-st.subheader('Missende Data Overzicht')
-if missing_data_count == 0:
-    st.write('Geen missende data gevonden. Alle onderdelen zijn compleet.')
-else:
-    st.write('Een overzicht van de missende data in de dataset:')
-    st.dataframe(missing_data)
-
 # Extract province data en haalt de entries weg waar province is 'Unknown'
 covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
 
