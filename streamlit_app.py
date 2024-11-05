@@ -251,10 +251,6 @@ st.write("""Het verloop van de COVID-19-pandemie verschilt aanzienlijk per regio
 st.write("""De onderstaande grafiek toont het aantal gediagnosticeerde gevallen in verhouding tot het aantal sterfgevallen in verschillende Europese provincies, gebaseerd op data van 8 maart 2023. Met behulp van de slider kunt u het bereik van het aantal besmettingen instellen om specifieke clusters te bekijken. Elke marker vertegenwoordigt een provincie en toont bij hover zowel het land als de provincie. Dit geeft een direct inzicht in hoe provincies zich tot elkaar verhouden.""")
 st.write("""Door deze visualisatie worden trends duidelijk zichtbaar, zoals provincies met relatief hogere sterfgevallen in verhouding tot het aantal gediagnosticeerde gevallen. Ook wordt het mogelijk om patronen te identificeren die wijzen op provincies waar het aantal sterfgevallen relatief hoger ligt ten opzichte van besmettingen. Dit type analyse kan beleidsmakers helpen bij het ontwikkelen van gerichte interventies en het toewijzen van middelen om de impact van COVID-19 te beperken.""")
 
-# Dataset voor scatter plot per datum
-covid_df_EU['confirmed_08'] = covid_df_EU['confirmed'] - covid_df_EU['confirmed_diff']
-covid_df_EU['deaths_08'] = covid_df_EU['deaths'] - covid_df_EU['deaths_diff']
-
 # Data voor 8 maart 2023 gebruiken voor scatter en regressie
 scatter_data = covid_df_EU[['country_name', 'province', 'confirmed_08', 'deaths_08']].dropna()
 
