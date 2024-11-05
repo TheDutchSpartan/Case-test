@@ -11,9 +11,11 @@ import matplotlib.pyplot as plt
 import plotly 
 import plotly.graph_objects as go 
 import plotly.express as px
-import numpy 
 import numpy as np
-
+import requests 
+import pandas as pd 
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 # ======================================================================================================================================== #
 # Title and introduction sectie voor de Streamlit app
