@@ -173,8 +173,8 @@ selected_countries = st.multiselect('Selecteer landen om te vergelijken', covid_
 fig = go.Figure()
 
 for country in selected_countries:
-    country_data = covid_df_EU_increase_pct[covid_df_EU_increase_pct['country_name'] == country]
-    values = country_data[['active_increase_%', 'confirmed_increase_%', 'deaths_increase_%']].mean()
+    country_data = covid_df_EU[covid_df_EU['country_name'] == country]
+    values = covid_df_EU[['active_increase_%', 'confirmed_increase_%', 'deaths_increase_%']].mean()
     labels = ['Actieve Toename (%)', 'Gediagnosticeerde Toename (%)', 'Sterfgevallen Toename (%)']
 
     fig.add_trace(go.Bar(
