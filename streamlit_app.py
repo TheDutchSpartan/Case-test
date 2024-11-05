@@ -55,20 +55,6 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-
-
-# Zoekt naar missende data
-missing_data = covid_df_EU.isnull().sum()
-missing_data_count = missing_data.sum()
-
-# Toont missende data
-st.subheader('Missende Data Overzicht')
-#Boolean statement voor weergave betreft missende waardes
-if missing_data_count == 0:
-    st.write('Geen missende data gevonden. Alle onderdelen zijn compleet.')
-else:
-    st.write(' een overzicht van de missende data in de dataset:')
-    st.dataframe(missing_data)
 fig = go.Figure()
 # Toevoegen van Bar traces voor de comfirmed cases en deaths for elke land
 for country in covid_df_EU['country_name'].unique():
@@ -128,18 +114,6 @@ def parse_region(region_str):
         return region_str  # If already a dictionary, return as is
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
-
-# Zoekt naar missende data
-missing_data = covid_df_EU.isnull().sum()
-missing_data_count = missing_data.sum()
-
-# Toont missende data
-st.subheader('Missende Data Overzicht')
-if missing_data_count == 0:
-    st.write('Geen missende data gevonden. Alle onderdelen zijn compleet.')
-else:
-    st.write('Een overzicht van de missende data in de dataset:')
-    st.dataframe(missing_data)
 # Groepeer de data bij province en calculate de som van confirmed cases en deaths
 
 selected_country = st.selectbox('Selecteer een land', covid_df_EU['country_name'].unique())
@@ -400,6 +374,19 @@ Door de volledigheid en betrouwbaarheid van de data te waarborgen, zullen de inz
 
 st.subheader('Disclaimer')
 st.write("""Ook al bevat de dataset geen ontbrekenden waarden, zijn de provincies niet altijd accuraat. Zo zijn er EU-landen die wel provincies/regio's bevatten, maar dat niet is aangegeven in de dataset. Zo lijkt het dus alsof sommige landen geen provincies hebben terwijl dit wel het geval is.""")
+
+# Zoekt naar missende data
+missing_data = covid_df_EU.isnull().sum()
+missing_data_count = missing_data.sum()
+
+# Toont missende data
+st.subheader('Missende Data Overzicht')
+#Boolean statement voor weergave betreft missende waardes
+if missing_data_count == 0:
+    st.write('Geen missende data gevonden. Alle onderdelen zijn compleet.')
+else:
+    st.write(' een overzicht van de missende data in de dataset:')
+    st.dataframe(missing_data,width=200)
 
 # ======================================================================================================================================== #
 
