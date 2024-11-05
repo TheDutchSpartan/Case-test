@@ -139,7 +139,7 @@ else:
 
 
 # Filter data for the selected country
-country_data = covid_df_EU[covid_df_EU['country_name']
+country_data = covid_df_EU[covid_df_EU['country_name']]
 provinces = country_data['province'].unique()
 
 # Multiselect for selecting multiple provinces to display, default to no selection
