@@ -318,7 +318,7 @@ fig_scat.update_layout(
     ),
     yaxis=dict(
         title='Aantal sterfgevallen',
-        range=[0, max_y_value]  # Dynamisch bereik van de y-as
+        range=[0, 120*1000]  # Dynamisch bereik van de y-as
     ),
     template='plotly_dark'
 )
