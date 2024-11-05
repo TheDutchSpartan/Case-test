@@ -271,8 +271,8 @@ filtered_data = scatter_data[(scatter_data['confirmed_08'] >= confirmed_range[0]
 max_y_value = filtered_data['deaths_08'].max() if not filtered_data.empty else 80000  # Standaardwaarde als de data leeg is
 
 # Regressie berekenen op de volledige dataset (niet gefilterd)
-y_full = scatter_data['confirmed_08'].values.reshape(-1, 1)
-x_full = scatter_data['deaths_08'].values
+x_full = scatter_data['confirmed_08'].values.reshape(-1, 1)
+y_full = scatter_data['deaths_08'].values
 model = LinearRegression()
 model.fit(x_full, y_full)
 y_pred_full = model.predict(x_full)
@@ -295,7 +295,7 @@ fig_scat.add_trace(go.Scatter(
         size=8,  # Iets grotere markers
         opacity=0.8  # Minder transparant
     ),
-    text=hover_text,  # Land en provincie in de hover-informatie
+    text=hover_text,  
     name='Gediagnosticeerde vs Sterfgevallen'
 ))
 
@@ -318,7 +318,7 @@ fig_scat.update_layout(
     ),
     yaxis=dict(
         title='Aantal sterfgevallen',
-        range=[0, 120*1000]  # Dynamisch bereik van de y-as
+        range=[0, max_y_value]  # Dynamisch bereik van de y-as
     ),
     template='plotly_dark'
 )
