@@ -278,7 +278,7 @@ Door de volledigheid en betrouwbaarheid van de data te waarborgen, zullen de inz
 
 st.subheader('Disclaimer')
 st.write("""Ook al bevat de dataset geen ontbrekenden waarden, zijn de provincies niet altijd accuraat. Zo zijn er EU-landen die wel provincies/regio's bevatten, maar dat niet is aangegeven in de dataset. Zo lijkt het dus alsof sommige landen geen provincies hebben terwijl dit wel het geval is.""")
-end_time = time.perf_counter()
+
 # ======================================================================================================================================== #
 
 
@@ -371,5 +371,5 @@ st.write("Deze kaart visualiseert bevestigde COVID-19-gevallen per regio. Gebrui
 # Embed the map HTML in Streamlit
 st.components.v1.html(map_html, width=800, height=600)
 
-
+end_time = time.perf_counter()
 st.write(f"Total execution time: {end_time - start_time} seconds")
