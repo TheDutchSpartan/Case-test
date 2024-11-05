@@ -63,12 +63,8 @@ st.write("""De verspreiding van COVID-19 blijft een belangrijke zorg in Europa, 
 st.write("""Door deze gegevens te analyseren, krijgen we een duidelijker beeld van welke provincies in verschillende landen het hardst worden getroffen door de pandemie. Dit kan beleidsmakers helpen om beter geïnformeerde beslissingen te nemen over interventies en middelen.""")
 st.write("""Kies hieronder een land en een provincie om de specifieke stijgingspercentages te bekijken. De kleuren in de grafiek geven de stijgingen weer: blauw voor actieve gevallen, oranje voor bevestigde besmettingen, en rood voor sterfgevallen.""")
 
-# =================================================================================================================================== #
-
 # Titel voor het dashboard
 st.header('COVID-19 Toename Percentage Dashboard')
-# Load the CSV file
-covid_df_EU = pd.read_csv("Case2vb_preprocessed.csv")
 
 # Check if region column needs parsing
 def parse_region(region_str):
@@ -189,6 +185,10 @@ else:
         # Display the mortality rate for each province
         st.write(f"Sterftepercentage voor {province1}: {mortality_rate1:.2f}%")
         st.write(f"Sterftepercentage voor {province2}: {mortality_rate2:.2f}%")
+
+# =================================================================================================================================== #
+
+
 
 # =================================================================================================================================== #
 #Doormiddel van streamlit schrijven we headers en een stuk tekst
