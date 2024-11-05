@@ -35,15 +35,14 @@ Dit dashboard biedt een overzicht van de verspreiding van COVID-19 in verschille
 3. **Gediagnosticeerde Gevallen vs. Sterfgevallen**: Vergelijk het aantal bevestigde gevallen met sterfgevallen in elke provincie. Deze visualisatie maakt het mogelijk om te zien welke regio’s harder zijn getroffen door de pandemie.
    
 ### Hoe het dashboard te gebruiken:
-- Selecteer een **land** en **provincie** in de dropdown-menu’s om de data voor een specifieke regio te bekijken.
-- Gebruik de **slider** om data voor verschillende datums te vergelijken.
+- Selecteer een **land** en **provincie** in de dropdown-menu’s om de data voor een specifieke regio te bekijken. Worden er 2 provincies vergeleken dan verschijnt er onder het dashboard een print to CSV knop zodat de gefilterde gebruikt kan worden. 
+- Onder het dashboard verschijnt bij **2** geselecteerde provincies procentuele verschillen tussen deze 2 provincies.
 - Vink opties aan of uit met de **checkboxes** om specifieke datapunten te tonen of te verbergen.
 
 Het dashboard is ontworpen om overheden, gezondheidsautoriteiten en burgers te helpen bij het beter begrijpen van de impact van COVID-19 in Europa. Door data te visualiseren, kunnen trends gemakkelijker worden geïdentificeerd, wat leidt tot beter geïnformeerde beslissingen.
 """)
 
 # ======================================================================================================================================== #
-# Load the CSV file
 covid_df_EU = pd.read_csv("Case2vb_preprocessed.csv")
 df = covid_df_EU.copy() 
 # Check if `region` column needs parsing
@@ -120,37 +119,132 @@ st.write("""Kies hieronder een land en een provincie om de specifieke stijgingsp
 
 # Titel voor het dashboard
 st.header('COVID-19 Toename Percentage Dashboard')
-# Dropdown voor het selecteren van een land
+# Check if `region` column needs parsing
+def parse_region(region_str):
+    try:
+        # Convert JSON string to dictionary if needed
+        if isinstance(region_str, str):
+            return json.loads(region_str.replace("'", "\""))  # Handle single quotes if present
+        return region_str  # If already a dictionary, return as is
+    except json.JSONDecodeError:
+        return {}  # Return an empty dictionary if parsing fails
 
-# Aanmaken van een staafdiagram met plotly
-selected_countries = st.multiselect('Selecteer landen om te vergelijken', covid_df_EU['country_name'].unique())
-fig = go.Figure()
+# Apply parsing to the `region` column
+covid_df_EU['region'] = covid_df_EU['region'].apply(parse_region)
 
-for country in selected_countries:
-    country_data = covid_df_EU[covid_df_EU['country_name'] == country]
-    values = covid_df_EU[['active_increase_%', 'confirmed_increase_%', 'deaths_increase_%']].mean()
-    labels = ['Actieve Toename (%)', 'Gediagnosticeerde Toename (%)', 'Sterfgevallen Toename (%)']
+# Extract `province` from the parsed `region` dictionaries
+covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province', 'Unknown'))
 
+# Filter out rows where province is 'Unknown'
+covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
+
+# Zoekt naar missende data
+missing_data = covid_df_EU.isnull().sum()
+missing_data_count = missing_data.sum()
+
+# Toont missende data
+st.subheader('Missende Data Overzicht')
+if missing_data_count == 0:
+    st.write('Geen missende data gevonden. Alle onderdelen zijn compleet.')
+else:
+    st.write('Een overzicht van de missende data in de dataset:')
+    st.dataframe(missing_data)
+
+# Extract province data en haalt de entries weg waar province is 'Unknown'
+covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province'))
+covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
+
+# Groepeer de data bij province en calculate de som van confirmed cases en deaths
+province_data_EU = covid_df_EU.groupby(['province', 'country_name']).agg({'confirmed': 'sum', 'deaths': 'sum', 'fatality_rate': 'mean'}).reset_index()
+province_data_EU = province_data_EU.reindex(columns=['country_name', 'province', 'confirmed', 'deaths', 'fatality_rate'])
+province_data_EU = province_data_EU.sort_values(by='country_name', ascending=True)
+selected_country = st.selectbox('Selecteer een land', covid_df_EU['country_name'].unique())
+
+# Filter data for the selected country
+country_data = covid_df_EU[covid_df_EU['country_name'] == selected_country]
+provinces = country_data['province'].unique()
+
+# Multiselect for selecting multiple provinces to display, default to no selection
+selected_provinces = st.multiselect('Selecteer provincies om te tonen', provinces, default=[])
+
+# Filter the data to include only selected provinces
+filtered_data = country_data[country_data['province'].isin(selected_provinces)]
+
+# Check if any provinces are selected
+if not selected_provinces:
+    st.write("Selecteer ten minste één provincie om de gegevens te bekijken.")
+else:
+    # Plotly figure
+    fig = go.Figure()
+
+    # Add bar traces for confirmed cases and deaths for each selected province
     fig.add_trace(go.Bar(
-        x=labels,
-        y=values,
-        name=country,
+        x=filtered_data['province'],
+        y=filtered_data['confirmed'],
+        name='Gediagnosticeerde gevallen',
+        marker_color='blue'
+    ))
+    fig.add_trace(go.Bar(
+        x=filtered_data['province'],
+        y=filtered_data['deaths'],
+        name='Sterfgevallen',
+        marker_color='red'
     ))
 
-# Layout and styling of the plot
-fig.update_layout(
-    title="Vergelijking van Toename in Percentage voor Geselecteerde Landen",
-    xaxis_title="Meting",
-    yaxis_title="Percentage",
-    barmode='group'
-)
+    # Update layout for improved readability
+    fig.update_layout(
+        title=f'COVID-19 Gediagnosticeerde Gevallen en Sterfgevallen per Provincie in {selected_country}',
+        xaxis_title='Provincie',
+        yaxis_title='Aantal',
+        barmode='group',
+        xaxis_tickangle=-45,
+        template='plotly_dark',
+        legend_title_text='Categorie',
+        title_x=0.5
+    )
 
-# Display the plot in Streamlit
-if selected_countries:
+    # Display the chart in Streamlit
     st.plotly_chart(fig)
-else:
-    st.write("Selecteer ten minste één land om een vergelijking te maken.")
+    
+    # Download Optie
+    st.subheader("Download de gefilterde data")
+    csv = filtered_data.to_csv(index=False)
+    st.download_button(
+        label="Download data als CSV",
+        data=csv,
+        file_name=f'{selected_country}_covid_data.csv',
+        mime='text/csv'
+    )
 
+
+
+    # Display percentage difference and mortality rate only if exactly two provinces are selected
+    if len(selected_provinces) == 2:
+        confirmed_cases = filtered_data.groupby('province')['confirmed'].sum()
+        death_cases = filtered_data.groupby('province')['deaths'].sum()
+        
+        # Sort provinces by cases for comparison
+        province1, province2 = confirmed_cases.index[:2]
+        confirmed1, confirmed2 = confirmed_cases[province1], confirmed_cases[province2]
+        deaths1, deaths2 = death_cases[province1], death_cases[province2]
+
+        # Calculate percentage difference for confirmed cases
+        if confirmed2 > 0:
+            confirmed_difference = ((confirmed1 - confirmed2) / confirmed2) * 100
+            if confirmed_difference > 0:
+                st.write(f"{province1} heeft {confirmed_difference:.2f}% meer gediagnosticeerde gevallen dan {province2}.")
+            else:
+                st.write(f"{province1} heeft {abs(confirmed_difference):.2f}% minder gediagnosticeerde gevallen dan {province2}.")
+        else:
+            st.write(f"{province1} heeft aanzienlijk meer gediagnosticeerde gevallen dan {province2}, aangezien {province2} geen gevallen heeft gerapporteerd.")
+
+        # Calculate mortality rate for each province
+        mortality_rate1 = (deaths1 / confirmed1) * 100 if confirmed1 > 0 else 0
+        mortality_rate2 = (deaths2 / confirmed2) * 100 if confirmed2 > 0 else 0
+
+        # Display the mortality rate for each province
+        st.write(f"Sterftepercentage voor {province1}: {mortality_rate1:.2f}%")
+        st.write(f"Sterftepercentage voor {province2}: {mortality_rate2:.2f}%")
 
 # =================================================================================================================================== #
 # Titel en text voor de tweede sectie van de analyse doormiddel van streamlit
