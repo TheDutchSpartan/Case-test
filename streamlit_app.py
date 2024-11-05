@@ -173,7 +173,75 @@ else:
 
 # =================================================================================================================================== #
 
+#Doormiddel van streamlit schrijven we headers en een stuk tekst
+st.header("""Procentuele Toename van COVID-19 Gevallen en Sterfgevallen in de EU""")
+st.write("""De verspreiding van COVID-19 blijft een belangrijke zorg in Europa, waarbij overheden en gezondheidsautoriteiten nauwlettend de dagelijkse stijgingen in besmettingen en sterfgevallen volgen. De onderstaande grafiek biedt een inzichtelijke vergelijking van de procentuele toename van actieve COVID-19-gevallen, bevestigde besmettingen, en sterfgevallen per provincie, tussen 8 en 9 maart 2023.""")
+st.write("""Door deze gegevens te analyseren, krijgen we een duidelijker beeld van welke provincies in verschillende landen het hardst worden getroffen door de pandemie. Dit kan beleidsmakers helpen om beter geïnformeerde beslissingen te nemen over interventies en middelen.""")
+st.write("""Kies hieronder een land om de specifieke stijgingspercentages te bekijken. De kleuren in de grafiek geven de stijgingen weer: blauw voor actieve gevallen, oranje voor bevestigde besmettingen, en rood voor sterfgevallen.""")
 
+# Berekend verhoogde percentage voor confirmed cases, deaths, en active cases
+covid_df_EU_con_diff = covid_df_EU[['province', 'country_name', 'confirmed', 'confirmed_diff']].copy()
+covid_df_EU_con_diff['2023-03-08'] = covid_df_EU_con_diff['confirmed'] - covid_df_EU_con_diff['confirmed_diff']
+covid_df_EU_con_diff['confirmed_increase_%'] = (((covid_df_EU_con_diff['confirmed'] - covid_df_EU_con_diff['2023-03-08']) / covid_df_EU_con_diff['2023-03-08']) * 100)
+covid_df_EU_con_diff.rename(columns={'confirmed':'2023-03-09'}, inplace=True)
+covid_df_EU_con_diff = covid_df_EU_con_diff.reindex(columns=['country_name', 'province', 'confirmed_diff','confirmed_increase_%', '2023-03-08', '2023-03-09'])
+
+# Herhalen van soortgelijke berekeningen voor de deaths en active cases
+covid_df_EU_dea_diff = covid_df_EU[['province', 'country_name', 'deaths', 'deaths_diff']].copy()
+covid_df_EU_dea_diff['2023-03-08'] = covid_df_EU_dea_diff['deaths'] - covid_df_EU_dea_diff['deaths_diff']
+covid_df_EU_dea_diff['deaths_increase_%'] = (((covid_df_EU_dea_diff['deaths'] - covid_df_EU_dea_diff['2023-03-08']) / covid_df_EU_dea_diff['2023-03-08']) * 100)
+covid_df_EU_dea_diff.rename(columns={'deaths':'2023-03-09'}, inplace=True)
+covid_df_EU_dea_diff = covid_df_EU_dea_diff.reindex(columns=['country_name', 'province', 'deaths_diff', 'deaths_increase_%', '2023-03-08', '2023-03-09'])
+covid_df_EU_dea_diff['deaths_increase_%'] = covid_df_EU_dea_diff['deaths_increase_%'].fillna(0)
+
+covid_df_EU_act_diff = covid_df_EU[['province', 'country_name', 'active', 'active_diff']].copy()
+covid_df_EU_act_diff['2023-03-08'] = covid_df_EU_act_diff['active'] - covid_df_EU_act_diff['active_diff']
+covid_df_EU_act_diff['active_increase_%'] = (((covid_df_EU_act_diff['active'] - covid_df_EU_act_diff['2023-03-08']) / covid_df_EU_act_diff['2023-03-08']) * 100)
+covid_df_EU_act_diff.rename(columns={'active':'2023-03-09'}, inplace=True)
+covid_df_EU_act_diff = covid_df_EU_act_diff.reindex(columns=['country_name', 'province', 'active_diff', 'active_increase_%', '2023-03-08', '2023-03-09'])
+covid_df_EU_act_diff['active_increase_%'] = covid_df_EU_act_diff['active_increase_%'].fillna(0)
+
+# Samenvoegen van de data in een dataframe voor toename percentage
+covid_df_EU_increase_pct = covid_df_EU_act_diff[['province', 'country_name', 'active_increase_%']].merge(
+    covid_df_EU_con_diff[['province', 'country_name', 'confirmed_increase_%']],
+    on=['province', 'country_name'],
+    how='inner').merge(
+        covid_df_EU_dea_diff[['province', 'country_name', 'deaths_increase_%']],
+        on=['province', 'country_name'],
+        how='inner'
+    )
+
+# Titel voor het dashboard
+st.header('COVID-19 Toename Percentage Dashboard')
+
+# Aanmaken van een staafdiagram met plotly
+selected_countries = st.multiselect('Selecteer landen om te vergelijken', covid_df_EU_increase_pct['country_name'].unique())
+fig = go.Figure()
+
+for country in selected_countries:
+    country_data = covid_df_EU_increase_pct[covid_df_EU_increase_pct['country_name'] == country]
+    values = country_data[['active_increase_%', 'confirmed_increase_%', 'deaths_increase_%']].mean()
+    labels = ['Actieve Toename (%)', 'Gediagnosticeerde Toename (%)', 'Sterfgevallen Toename (%)']
+
+    fig.add_trace(go.Bar(
+        x=labels,
+        y=values,
+        name=country,
+    ))
+
+fig.update_layout(
+    title="Vergelijking van Toename in Percentage voor Geselecteerde Landen",
+    xaxis_title="Meting",
+    yaxis_title="Percentage",
+    barmode='group'
+)
+
+
+if selected_countries:
+    st.plotly_chart(fig)
+        
+else:
+    st.write("Selecteer ten minste één land om een vergelijking te maken."
 
 # =================================================================================================================================== #
 #Doormiddel van streamlit schrijven we headers en een stuk tekst
