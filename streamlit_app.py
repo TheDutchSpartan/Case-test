@@ -56,18 +56,18 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-# Apply parsing to the `region` column
-covid_df_EU['region'] = covid_df_EU['region'].apply(parse_region)
+# # Apply parsing to the `region` column
+# covid_df_EU['region'] = covid_df_EU['region'].apply(parse_region)
 
-# Extract `province` from the parsed `region` dictionaries
-covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province', 'Unknown'))
+# # Extract `province` from the parsed `region` dictionaries
+# covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province', 'Unknown'))
 
-# Filter out rows where province is 'Unknown'
-covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
+# # Filter out rows where province is 'Unknown'
+# covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
 
-# Zoekt naar missende data
-missing_data = covid_df_EU.isnull().sum()
-missing_data_count = missing_data.sum()
+# # Zoekt naar missende data
+# missing_data = covid_df_EU.isnull().sum()
+# missing_data_count = missing_data.sum()
 
 # Toont missende data
 st.subheader('Missende Data Overzicht')
@@ -77,15 +77,15 @@ if missing_data_count == 0:
 else:
     st.write(' een overzicht van de missende data in de dataset:')
     st.dataframe(missing_data)
-# Extract province data en haalt de entries weg waar province is 'Unknown'
-covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province'))
-covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
-# Groepeer de data bij province en calculate de som van confirmed cases en deaths
-province_data_EU = covid_df_EU.groupby(['province', 'country_name']).agg({'confirmed': 'sum', 'deaths': 'sum', 'fatality_rate': 'mean'}).reset_index()
-province_data_EU = province_data_EU.reindex(columns=['country_name', 'province', 'confirmed', 'deaths', 'fatality_rate'])
-province_data_EU = province_data_EU.sort_values(by='country_name', ascending=True)
-#Plotly figure
-fig = go.Figure()
+# # Extract province data en haalt de entries weg waar province is 'Unknown'
+# covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province'))
+# covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
+# # Groepeer de data bij province en calculate de som van confirmed cases en deaths
+# province_data_EU = covid_df_EU.groupby(['province', 'country_name']).agg({'confirmed': 'sum', 'deaths': 'sum', 'fatality_rate': 'mean'}).reset_index()
+# province_data_EU = province_data_EU.reindex(columns=['country_name', 'province', 'confirmed', 'deaths', 'fatality_rate'])
+# province_data_EU = province_data_EU.sort_values(by='country_name', ascending=True)
+# #Plotly figure
+# fig = go.Figure()
 # Toevoegen van Bar traces voor de comfirmed cases en deaths for elke land
 for country in province_data_EU['country_name'].unique():
     province_data_EU_filtered = province_data_EU[province_data_EU['country_name'] == country]
@@ -133,38 +133,38 @@ st.write("""Door deze gegevens te analyseren, krijgen we een duidelijker beeld v
 st.write("""Kies hieronder een land en een provincie om de specifieke stijgingspercentages te bekijken. De kleuren in de grafiek geven de stijgingen weer: blauw voor actieve gevallen, oranje voor bevestigde besmettingen, en rood voor sterfgevallen.""")
 
 # =================================================================================================================================== #
-# Berekend verhoogde percentage voor confirmed cases, deaths, en active cases
-covid_df_EU_con_diff = covid_df_EU[['province', 'country_name', 'confirmed', 'confirmed_diff']].copy()
-covid_df_EU_con_diff['2023-03-08'] = covid_df_EU_con_diff['confirmed'] - covid_df_EU_con_diff['confirmed_diff']
-covid_df_EU_con_diff['confirmed_increase_%'] = (((covid_df_EU_con_diff['confirmed'] - covid_df_EU_con_diff['2023-03-08']) / covid_df_EU_con_diff['2023-03-08']) * 100)
-covid_df_EU_con_diff.rename(columns={'confirmed':'2023-03-09'}, inplace=True)
-covid_df_EU_con_diff = covid_df_EU_con_diff.reindex(columns=['country_name', 'province', 'confirmed_diff','confirmed_increase_%', '2023-03-08', '2023-03-09',])
-#herhalen van soortgelijke berekeningen voor de deaths en active cases
-covid_df_EU_dea_diff = covid_df_EU[['province', 'country_name', 'deaths', 'deaths_diff']].copy()
-covid_df_EU_dea_diff['2023-03-08'] = covid_df_EU_dea_diff['deaths'] - covid_df_EU_dea_diff['deaths_diff']
-covid_df_EU_dea_diff['deaths_increase_%'] = (((covid_df_EU_dea_diff['deaths'] - covid_df_EU_dea_diff['2023-03-08']) / covid_df_EU_dea_diff['2023-03-08']) * 100)
-covid_df_EU_dea_diff.rename(columns={'deaths':'2023-03-09'}, inplace=True)
-covid_df_EU_dea_diff = covid_df_EU_dea_diff.reindex(columns=['country_name', 'province', 'deaths_diff', 'deaths_increase_%', '2023-03-08', '2023-03-09'])
-covid_df_EU_dea_diff['deaths_increase_%'] = covid_df_EU_dea_diff['deaths_increase_%'].fillna(0)
+# # Berekend verhoogde percentage voor confirmed cases, deaths, en active cases
+# covid_df_EU_con_diff = covid_df_EU[['province', 'country_name', 'confirmed', 'confirmed_diff']].copy()
+# covid_df_EU_con_diff['2023-03-08'] = covid_df_EU_con_diff['confirmed'] - covid_df_EU_con_diff['confirmed_diff']
+# covid_df_EU_con_diff['confirmed_increase_%'] = (((covid_df_EU_con_diff['confirmed'] - covid_df_EU_con_diff['2023-03-08']) / covid_df_EU_con_diff['2023-03-08']) * 100)
+# covid_df_EU_con_diff.rename(columns={'confirmed':'2023-03-09'}, inplace=True)
+# covid_df_EU_con_diff = covid_df_EU_con_diff.reindex(columns=['country_name', 'province', 'confirmed_diff','confirmed_increase_%', '2023-03-08', '2023-03-09',])
+# #herhalen van soortgelijke berekeningen voor de deaths en active cases
+# covid_df_EU_dea_diff = covid_df_EU[['province', 'country_name', 'deaths', 'deaths_diff']].copy()
+# covid_df_EU_dea_diff['2023-03-08'] = covid_df_EU_dea_diff['deaths'] - covid_df_EU_dea_diff['deaths_diff']
+# covid_df_EU_dea_diff['deaths_increase_%'] = (((covid_df_EU_dea_diff['deaths'] - covid_df_EU_dea_diff['2023-03-08']) / covid_df_EU_dea_diff['2023-03-08']) * 100)
+# covid_df_EU_dea_diff.rename(columns={'deaths':'2023-03-09'}, inplace=True)
+# covid_df_EU_dea_diff = covid_df_EU_dea_diff.reindex(columns=['country_name', 'province', 'deaths_diff', 'deaths_increase_%', '2023-03-08', '2023-03-09'])
+# covid_df_EU_dea_diff['deaths_increase_%'] = covid_df_EU_dea_diff['deaths_increase_%'].fillna(0)
 
-covid_df_EU_act_diff = covid_df_EU[['province', 'country_name', 'active', 'active_diff']].copy()
-covid_df_EU_act_diff['2023-03-08'] = covid_df_EU_act_diff['active'] - covid_df_EU_act_diff['active_diff']
-covid_df_EU_act_diff['active_increase_%'] = (((covid_df_EU_act_diff['active'] - covid_df_EU_act_diff['2023-03-08']) / covid_df_EU_act_diff['2023-03-08']) * 100)
-covid_df_EU_act_diff.rename(columns={'active':'2023-03-09'}, inplace=True)
-covid_df_EU_act_diff = covid_df_EU_act_diff.reindex(columns=['country_name', 'province', 'active_diff', 'active_increase_%', '2023-03-08', '2023-03-09'])
-covid_df_EU_act_diff['active_increase_%'] = covid_df_EU_act_diff['active_increase_%'].fillna(0)
+# covid_df_EU_act_diff = covid_df_EU[['province', 'country_name', 'active', 'active_diff']].copy()
+# covid_df_EU_act_diff['2023-03-08'] = covid_df_EU_act_diff['active'] - covid_df_EU_act_diff['active_diff']
+# covid_df_EU_act_diff['active_increase_%'] = (((covid_df_EU_act_diff['active'] - covid_df_EU_act_diff['2023-03-08']) / covid_df_EU_act_diff['2023-03-08']) * 100)
+# covid_df_EU_act_diff.rename(columns={'active':'2023-03-09'}, inplace=True)
+# covid_df_EU_act_diff = covid_df_EU_act_diff.reindex(columns=['country_name', 'province', 'active_diff', 'active_increase_%', '2023-03-08', '2023-03-09'])
+# covid_df_EU_act_diff['active_increase_%'] = covid_df_EU_act_diff['active_increase_%'].fillna(0)
 #Samenvoegen van de data in een dataframe voor toename percentage
-covid_df_EU_increase_pct = covid_df_EU_act_diff[['province', 'country_name', 'active_increase_%']].merge(
-    covid_df_EU_con_diff[['province', 'country_name', 'confirmed_increase_%']],
-    on=['province', 'country_name'],
-    how='inner').merge(
-        covid_df_EU_dea_diff[['province', 'country_name', 'deaths_increase_%']],
-        on=['province', 'country_name'],
-        how='inner'
-    )
-# Herschikken van de kolommen in de dataset
-covid_df_EU_increase_pct = covid_df_EU_increase_pct.reindex(
-    columns=['country_name', 'province', 'active_increase_%', 'confirmed_increase_%', 'deaths_increase_%'])
+# covid_df_EU_increase_pct = covid_df_EU_act_diff[['province', 'country_name', 'active_increase_%']].merge(
+#     covid_df_EU_con_diff[['province', 'country_name', 'confirmed_increase_%']],
+#     on=['province', 'country_name'],
+#     how='inner').merge(
+#         covid_df_EU_dea_diff[['province', 'country_name', 'deaths_increase_%']],
+#         on=['province', 'country_name'],
+#         how='inner'
+#     )
+# # Herschikken van de kolommen in de dataset
+# covid_df_EU_increase_pct = covid_df_EU_increase_pct.reindex(
+#     columns=['country_name', 'province', 'active_increase_%', 'confirmed_increase_%', 'deaths_increase_%'])
 # Titel voor het dashboard
 st.header('COVID-19 Toename Percentage Dashboard')
 # Dropdown voor het selecteren van een land
@@ -306,21 +306,21 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-# Apply parsing to the 'region' column
-df['region'] = df['region'].apply(parse_region)
+# # Apply parsing to the 'region' column
+# df['region'] = df['region'].apply(parse_region)
 
-# Extract 'lat' and 'long' from the parsed 'region' dictionaries
-df['Lat'] = df['region'].apply(lambda x: x.get('lat'))
-df['Lon'] = df['region'].apply(lambda x: x.get('long'))
-df['province'] = df['region'].apply(lambda x: x.get('province'))
-df['name'] = df['region'].apply(lambda x: x.get('name'))
+# # Extract 'lat' and 'long' from the parsed 'region' dictionaries
+# df['Lat'] = df['region'].apply(lambda x: x.get('lat'))
+# df['Lon'] = df['region'].apply(lambda x: x.get('long'))
+# df['province'] = df['region'].apply(lambda x: x.get('province'))
+# df['name'] = df['region'].apply(lambda x: x.get('name'))
 
-# Convert 'Lat' and 'Lon' to numeric, coercing errors to NaN
-df['Lat'] = pd.to_numeric(df['Lat'], errors='coerce')
-df['Lon'] = pd.to_numeric(df['Lon'], errors='coerce')
+# # Convert 'Lat' and 'Lon' to numeric, coercing errors to NaN
+# df['Lat'] = pd.to_numeric(df['Lat'], errors='coerce')
+# df['Lon'] = pd.to_numeric(df['Lon'], errors='coerce')
 
-# Filter data to avoid clutter (e.g., show only locations with confirmed cases > 0)
-df_filtered = df[df['confirmed'] > 0]
+# # Filter data to avoid clutter (e.g., show only locations with confirmed cases > 0)
+# df_filtered = df[df['confirmed'] > 0]
 
 # Create a Folium map
 m = folium.Map(location=[35, 0], tiles="OpenStreetMap", zoom_start=4)
