@@ -206,39 +206,86 @@ st.write("""De onderstaande grafiek biedt een visuele weergave van het aantal ge
 st.write("""Door deze informatie te visualiseren, wordt het mogelijk om trends te ontdekken en provincies te identificeren waar sterfgevallen in verhouding tot gediagnosticeerde gevallen hoger zijn, of waar de stijging in besmettingen significant is. Dit type inzicht kan bijdragen aan meer gerichte interventies in de strijd tegen COVID-19.""")
 
 # =================================================================================================================================== #
-# Samenvoegen van verschillende datasets voor de scatter plot
-covid_df_EU_slider = covid_df_EU[['country_name', 'province']].merge(
-    covid_df_EU_con_diff[['province', 'country_name', '2023-03-08', '2023-03-09']],
-    on=['province', 'country_name'],
-    how='inner').merge(
-        covid_df_EU_dea_diff[['province', 'country_name', '2023-03-08', '2023-03-09']],
-        on=['province', 'country_name'],
-        how='inner',
-        suffixes=('_con', '_dea')
-    )
-# Filteren van de dataset voor Frankrijk (geen provincies beschikbaar)
-covid_df_EU_slider = covid_df_EU_slider[~((covid_df_EU_slider['country_name'] == 'Frankrijk') & (covid_df_EU_slider['province'] == ""))]
-# Aanmaken van de scatter plot met plotly
+# Titel en text voor de tweede sectie van de analyse doormiddel van streamlit
+st.header("""Analyse van COVID-19: Gediagnosticeerde Gevallen versus Sterfgevallen""")
+st.write("""Het verloop van de COVID-19-pandemie verschilt aanzienlijk per regio en wordt beïnvloed door factoren zoals bevolkingsdichtheid, zorgcapaciteit en genomen overheidsmaatregelen. Voor beleidsmakers en gezondheidsautoriteiten is het cruciaal om inzicht te krijgen in deze regionale variaties.""")
+st.write("""De onderstaande grafiek toont het aantal gediagnosticeerde gevallen in verhouding tot het aantal sterfgevallen in verschillende Europese provincies, gebaseerd op data van 8 maart 2023. Met behulp van de slider kunt u het bereik van het aantal besmettingen instellen om specifieke clusters te bekijken. Elke marker vertegenwoordigt een provincie en toont bij hover zowel het land als de provincie. Dit geeft een direct inzicht in hoe provincies zich tot elkaar verhouden.""")
+st.write("""Door deze visualisatie worden trends duidelijk zichtbaar, zoals provincies met relatief hogere sterfgevallen in verhouding tot het aantal gediagnosticeerde gevallen. Ook wordt het mogelijk om patronen te identificeren die wijzen op provincies waar het aantal sterfgevallen relatief hoger ligt ten opzichte van besmettingen. Dit type analyse kan beleidsmakers helpen bij het ontwikkelen van gerichte interventies en het toewijzen van middelen om de impact van COVID-19 te beperken.""")
+
+# Dataset voor scatter plot per datum
+covid_df_EU['confirmed_08'] = covid_df_EU['confirmed'] - covid_df_EU['confirmed_diff']
+covid_df_EU['deaths_08'] = covid_df_EU['deaths'] - covid_df_EU['deaths_diff']
+
+# Data voor 8 maart 2023 gebruiken voor scatter en regressie
+scatter_data = covid_df_EU[['country_name', 'province', 'confirmed_08', 'deaths_08']].dropna()
+
+# Slider toevoegen voor het filteren op aantal besmettingen, met bereik van 0 tot 9M
+confirmed_range = st.slider("Selecteer bereik voor aantal gediagnosticeerde gevallen", 
+                            0, 9000000, (0, 9000000))
+
+# Filter de data op basis van het geselecteerde bereik van aantal besmettingen
+filtered_data = scatter_data[(scatter_data['confirmed_08'] >= confirmed_range[0]) & 
+                             (scatter_data['confirmed_08'] <= confirmed_range[1])]
+
+# Bereken dynamisch de maximale waarde voor de y-as op basis van gefilterde data
+max_y_value = filtered_data['deaths_08'].max() if not filtered_data.empty else 80000  # Standaardwaarde als de data leeg is
+
+# Regressie berekenen op de volledige dataset (niet gefilterd)
+x_full = scatter_data['confirmed_08'].values.reshape(-1, 1)
+y_full = scatter_data['deaths_08'].values
+model = LinearRegression()
+model.fit(x_full, y_full)
+y_pred_full = model.predict(x_full)
+r2_full = r2_score(y_full, y_pred_full)
+
+# Scatter plot maken met volledige regressielijn en gefilterde gegevens
 fig_scat = go.Figure()
-# Data toevoegen voor 8 maart 2023
+
+# Hover-informatie uitbreiden met zowel land als provincie
+hover_text = filtered_data.apply(lambda row: f"{row['country_name']}, {row['province']}", axis=1)
+
+# Originele data punten binnen het bereik, met kleuren per land en hover-informatie
 fig_scat.add_trace(go.Scatter(
-    x=covid_df_EU_slider['2023-03-08_con'],# X-as: aantal gediagnosticeerde gevallen
-    y=covid_df_EU_slider['2023-03-08_dea'],# Y-as: aantal sterfgevallen
-    mode='markers',# Markers (punten) voor elke provincie
-    marker=dict(color=covid_df_EU_slider['country_name'].astype('category').cat.codes),  # Kleuren op basis van land
-    text=covid_df_EU_slider['country_name'],  # Hover-informatie: landnaam
-    name='2023-03-08'# Legenda label voor deze datum
-))
-# Data toevoegen voor 9 maart 2023
-fig_scat.add_trace(go.Scatter(
-    x=covid_df_EU_slider['2023-03-09_con'],
-    y=covid_df_EU_slider['2023-03-09_dea'],
+    x=filtered_data['confirmed_08'],
+    y=filtered_data['deaths_08'],
     mode='markers',
-    marker=dict(color=covid_df_EU_slider['country_name'].astype('category').cat.codes),
-    text=covid_df_EU_slider['country_name'],
-    name='2023-03-09',
-    visible=False # Standaard onzichtbaar maken van deze data
+    marker=dict(
+        color=filtered_data['country_name'].astype('category').cat.codes, 
+        colorscale='Turbo',  # Alternatieve kleuren
+        size=8,  # Iets grotere markers
+        opacity=0.8  # Minder transparant
+    ),
+    text=hover_text,  # Land en provincie in de hover-informatie
+    name='Gediagnosticeerde vs Sterfgevallen'
 ))
+
+# Regressielijn toevoegen op basis van volledige dataset (blijf altijd zichtbaar)
+fig_scat.add_trace(go.Scatter(
+    x=scatter_data['confirmed_08'],
+    y=y_pred_full,
+    mode='lines',
+    name='Regressielijn (volledig)',
+    line=dict(color='red', dash='dash', width=3)  # Dikkere lijn
+))
+
+# Layout en stijl van de plot met dynamische x-as afhankelijk van slider en maximale limiet van 9M
+fig_scat.update_layout(
+    title='Aantal gediagnosticeerde uitgezet tegen het aantal sterfgevallen (met regressie)',
+    xaxis=dict(
+        title='Aantal gediagnosticeerde',
+        tickvals=[0, 1e6, 2e6, 3e6, 4e6, 5e6, 6e6, 7e6, 8e6, 9e6],  # Stappen tot 9M
+        range=[confirmed_range[0], confirmed_range[1]]
+    ),
+    yaxis=dict(
+        title='Aantal sterfgevallen',
+        range=[0, max_y_value]  # Dynamisch bereik van de y-as
+    ),
+    template='plotly_dark'
+)
+
+# Weergeven van de scatter plot en R² waarde
+st.plotly_chart(fig_scat)
+st.write(f"R²-waarde voor de volledige regressie: {r2_full:.4f}")
 # Layout en slider voor het wisselen tussen 8 en 9 maart
 fig_scat.update_layout(
     title='Aantal gediagnosticeerde uitgezet tegen het aantal sterfgevallen',
