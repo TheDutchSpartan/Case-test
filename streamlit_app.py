@@ -88,14 +88,13 @@ else:
 # fig = go.Figure()
 # Toevoegen van Bar traces voor de comfirmed cases en deaths for elke land
 for country in covid_df_EU['country_name'].unique():
-    province_data_EU_filtered = covid_df_EU[covid_df_EU['country_name'] == country]
-    fig.add_trace(go.Bar(x=province_data_EU_filtered['province'],
-                        y=province_data_EU_filtered['confirmed'],
+    fig.add_trace(go.Bar(x=covid_df_EU['province'],
+                        y=covid_df_EU['confirmed'],
                         name=f'{country} gediagnosticeerde',
                         visible=False,
                         marker_color='blue'))
-    fig.add_trace(go.Bar(x=province_data_EU_filtered['province'],
-                        y=province_data_EU_filtered['deaths'],
+    fig.add_trace(go.Bar(x=covid_df_EU['province'],
+                        y=covid_df_EU['deaths'],
                         name=f'{country} sterfgevallen',
                         visible=False,
                         marker_color='red'))
