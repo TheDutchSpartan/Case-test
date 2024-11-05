@@ -386,7 +386,7 @@ if missing_data_count == 0:
     st.write('Geen missende data gevonden. Alle onderdelen zijn compleet.')
 else:
     st.write(' een overzicht van de missende data in de dataset:')
-    st.dataframe(missing_data,width=200)
+    st.dataframe(missing_data,width=250)
 
 # ======================================================================================================================================== #
 
