@@ -231,11 +231,13 @@ else:
         st.write(f"Sterftepercentage voor {province2}: {mortality_rate2:.2f}%")
 
 # =================================================================================================================================== #
+#Doormiddel van streamlit schrijven we headers en een stuk tekst
 # Titel en text voor de tweede sectie van de analyse doormiddel van streamlit
 st.header("""Analyse van COVID-19: Gediagnosticeerde Gevallen versus Sterfgevallen""")
 st.write("""Het verloop van de COVID-19-pandemie verschilt aanzienlijk per regio en wordt beïnvloed door factoren zoals bevolkingsdichtheid, zorgcapaciteit en genomen overheidsmaatregelen. Voor beleidsmakers en gezondheidsautoriteiten is het cruciaal om inzicht te krijgen in deze regionale variaties.""")
 st.write("""De onderstaande grafiek toont het aantal gediagnosticeerde gevallen in verhouding tot het aantal sterfgevallen in verschillende Europese provincies, gebaseerd op data van 8 maart 2023. Met behulp van de slider kunt u het bereik van het aantal besmettingen instellen om specifieke clusters te bekijken. Elke marker vertegenwoordigt een provincie en toont bij hover zowel het land als de provincie. Dit geeft een direct inzicht in hoe provincies zich tot elkaar verhouden.""")
 st.write("""Door deze visualisatie worden trends duidelijk zichtbaar, zoals provincies met relatief hogere sterfgevallen in verhouding tot het aantal gediagnosticeerde gevallen. Ook wordt het mogelijk om patronen te identificeren die wijzen op provincies waar het aantal sterfgevallen relatief hoger ligt ten opzichte van besmettingen. Dit type analyse kan beleidsmakers helpen bij het ontwikkelen van gerichte interventies en het toewijzen van middelen om de impact van COVID-19 te beperken.""")
+
 
 # Dataset voor scatter plot per datum
 covid_df_EU['confirmed_08'] = covid_df_EU['confirmed'] - covid_df_EU['confirmed_diff']
