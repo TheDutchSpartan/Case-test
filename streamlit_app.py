@@ -85,7 +85,7 @@ else:
 # province_data_EU = province_data_EU.reindex(columns=['country_name', 'province', 'confirmed', 'deaths', 'fatality_rate'])
 # province_data_EU = province_data_EU.sort_values(by='country_name', ascending=True)
 # #Plotly figure
-# fig = go.Figure()
+fig = go.Figure()
 # Toevoegen van Bar traces voor de comfirmed cases en deaths for elke land
 for country in covid_df_EU['country_name'].unique():
     fig.add_trace(go.Bar(x=covid_df_EU['province'],
