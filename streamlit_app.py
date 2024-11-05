@@ -65,9 +65,9 @@ def parse_region(region_str):
 # # Filter out rows where province is 'Unknown'
 # covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
 
-# # Zoekt naar missende data
-# missing_data = covid_df_EU.isnull().sum()
-# missing_data_count = missing_data.sum()
+# Zoekt naar missende data
+missing_data = covid_df_EU.isnull().sum()
+missing_data_count = missing_data.sum()
 
 # Toont missende data
 st.subheader('Missende Data Overzicht')
