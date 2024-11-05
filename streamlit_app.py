@@ -80,12 +80,6 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-# Apply parsing to the region column
-covid_df_EU['region'] = covid_df_EU['region'].apply(parse_region)
-
-# Extract province from the parsed region dictionaries
-covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province', 'Unknown'))
-
 # Filter out rows where province is 'Unknown'
 covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
 
