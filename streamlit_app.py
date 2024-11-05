@@ -200,12 +200,6 @@ if selected_countries:
 else:
     st.write("Selecteer ten minste één land om een vergelijking te maken.")
 
-# ================================================================================================================================== #
-# Titel en text voor de tweede sectie van de analyse doormiddel van streamlit
-st.header("""Analyse van COVID-19: Gediagnosticeerde Gevallen versus Sterfgevallen""")
-st.write("""Het verloop van de COVID-19-pandemie kan per regio sterk verschillen, afhankelijk van verschillende factoren zoals bevolkingsdichtheid, zorgcapaciteit en overheidsmaatregelen. Het begrijpen van deze regionale verschillen is essentieel voor zowel beleidsmakers als gezondheidsautoriteiten.""")
-st.write("""De onderstaande grafiek biedt een visuele weergave van het aantal gediagnosticeerde gevallen in verhouding tot het aantal sterfgevallen in Europese provincies, op zowel 8 als 9 maart 2023. De data per dag zijn apart weergegeven, en met de slider kunt u eenvoudig schakelen tussen beide datums. Elke marker vertegenwoordigt een provincie, en de positie ervan toont hoe deze zich verhoudt tot de andere provincies.""")
-st.write("""Door deze informatie te visualiseren, wordt het mogelijk om trends te ontdekken en provincies te identificeren waar sterfgevallen in verhouding tot gediagnosticeerde gevallen hoger zijn, of waar de stijging in besmettingen significant is. Dit type inzicht kan bijdragen aan meer gerichte interventies in de strijd tegen COVID-19.""")
 
 # =================================================================================================================================== #
 # Titel en text voor de tweede sectie van de analyse doormiddel van streamlit
@@ -288,31 +282,7 @@ fig_scat.update_layout(
 # Weergeven van de scatter plot en R² waarde
 st.plotly_chart(fig_scat)
 st.write(f"R²-waarde voor de volledige regressie: {r2_full:.4f}")
-# Layout en slider voor het wisselen tussen 8 en 9 maart
-fig_scat.update_layout(
-    title='Aantal gediagnosticeerde uitgezet tegen het aantal sterfgevallen',
-    xaxis_title='Aantal gediagnosticeerde',
-    yaxis_title='Aantal sterfgevallen',
-    template='plotly_white',
-    sliders=[{
-        'steps': [
-            {
-                'method': 'update',
-                'label': '2023-03-08',
-                'args': [{'visible': [True, False]}, {'title': 'Data van 2023-03-08'}]
-            },
-            {
-                'method': 'update',
-                'label': '2023-03-09',
-                'args': [{'visible': [False, True]}, {'title': 'Data van 2023-03-09'}]
-            }
-        ],
-        'currentvalue': {'prefix': 'Datum: '},# Huidige waarde van de slider
-        'pad': {'t': 50} # Afstand tussen slider en grafiek
-    }]
-)
-# Weergeven van de scatter plot in de app
-st.plotly_chart(fig_scat)
+
 
 # Tekst omtrent data kwaliteit
 st.subheader('Discussie over Data Kwaliteit')
