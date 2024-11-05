@@ -319,7 +319,7 @@ def parse_region(region_str):
 # df['Lon'] = pd.to_numeric(df['Lon'], errors='coerce')
 
 # # Filter data to avoid clutter (e.g., show only locations with confirmed cases > 0)
-# df_filtered = df[df['confirmed'] > 0]
+df_filtered = df[df['confirmed'] > 0]
 
 # Create a Folium map
 m = folium.Map(location=[35, 0], tiles="OpenStreetMap", zoom_start=4)
