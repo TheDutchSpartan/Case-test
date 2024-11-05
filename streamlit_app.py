@@ -87,8 +87,8 @@ else:
 # #Plotly figure
 # fig = go.Figure()
 # Toevoegen van Bar traces voor de comfirmed cases en deaths for elke land
-for country in province_data_EU['country_name'].unique():
-    province_data_EU_filtered = province_data_EU[province_data_EU['country_name'] == country]
+for country in covid_df_EU['country_name'].unique():
+    province_data_EU_filtered = covid_df_EU[covid_df_EU['country_name'] == country]
     fig.add_trace(go.Bar(x=province_data_EU_filtered['province'],
                         y=province_data_EU_filtered['confirmed'],
                         name=f'{country} gediagnosticeerde',
@@ -105,7 +105,7 @@ fig.data[1].visible=True
 # Dropdown menu voor kiezen van verschillende landen
 dropdown_buttons = []
 
-for country in province_data_EU['country_name'].unique():
+for country in covid_df_EU['country_name'].unique():
     dropdown_buttons.append({
         'label':country,
         'method':'update',
@@ -236,7 +236,7 @@ r2_full = r2_score(y_full, y_pred_full)
 fig_scat = go.Figure()
 
 # Hover-informatie uitbreiden met zowel land als provincie
-hover_text = filtered_data.apply(lambda row: f"{row['country_name']}, {row['province']}", axis=1)
+hover_text = filtered_data.apply(lambda row: f"{row['country_name']}, {row['']}", axis=1)
 
 # Originele data punten binnen het bereik, met kleuren per land en hover-informatie
 fig_scat.add_trace(go.Scatter(
