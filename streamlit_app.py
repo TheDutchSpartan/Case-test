@@ -12,8 +12,6 @@ import plotly
 import plotly.graph_objects as go 
 import plotly.express as px
 import numpy as np
-import requests 
-import pandas as pd 
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 
@@ -47,7 +45,7 @@ Het dashboard is ontworpen om overheden, gezondheidsautoriteiten en burgers te h
 # ======================================================================================================================================== #
 # Load the CSV file
 covid_df_EU = pd.read_csv("Case2vb.csv")
-
+df = covid_df_EU.copy() 
 # Check if `region` column needs parsing
 def parse_region(region_str):
     try:
@@ -299,12 +297,6 @@ st.subheader('Disclaimer')
 st.write("""Ook al bevat de dataset geen ontbrekenden waarden, zijn de provincies niet altijd accuraat. Zo zijn er EU-landen die wel provincies/regio's bevatten, maar dat niet is aangegeven in de dataset. Zo lijkt het dus alsof sommige landen geen provincies hebben terwijl dit wel het geval is.""")
 
 # ======================================================================================================================================== #
-
-
-# Load the CSV data into a DataFrame
-data = pd.read_csv("Case2vb.csv")
-df = pd.DataFrame(data)
-
 # Function to parse the 'region' column
 def parse_region(region_str):
     try:
