@@ -56,14 +56,7 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-# # Apply parsing to the `region` column
-# covid_df_EU['region'] = covid_df_EU['region'].apply(parse_region)
 
-# # Extract `province` from the parsed `region` dictionaries
-# covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province', 'Unknown'))
-
-# # Filter out rows where province is 'Unknown'
-# covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
 
 # Zoekt naar missende data
 missing_data = covid_df_EU.isnull().sum()
@@ -77,14 +70,6 @@ if missing_data_count == 0:
 else:
     st.write(' een overzicht van de missende data in de dataset:')
     st.dataframe(missing_data)
-# # Extract province data en haalt de entries weg waar province is 'Unknown'
-# covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province'))
-# covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
-# # Groepeer de data bij province en calculate de som van confirmed cases en deaths
-# province_data_EU = covid_df_EU.groupby(['province', 'country_name']).agg({'confirmed': 'sum', 'deaths': 'sum', 'fatality_rate': 'mean'}).reset_index()
-# province_data_EU = province_data_EU.reindex(columns=['country_name', 'province', 'confirmed', 'deaths', 'fatality_rate'])
-# province_data_EU = province_data_EU.sort_values(by='country_name', ascending=True)
-# #Plotly figure
 fig = go.Figure()
 # Toevoegen van Bar traces voor de comfirmed cases en deaths for elke land
 for country in covid_df_EU['country_name'].unique():
@@ -132,38 +117,7 @@ st.write("""Door deze gegevens te analyseren, krijgen we een duidelijker beeld v
 st.write("""Kies hieronder een land en een provincie om de specifieke stijgingspercentages te bekijken. De kleuren in de grafiek geven de stijgingen weer: blauw voor actieve gevallen, oranje voor bevestigde besmettingen, en rood voor sterfgevallen.""")
 
 # =================================================================================================================================== #
-# # Berekend verhoogde percentage voor confirmed cases, deaths, en active cases
-# covid_df_EU_con_diff = covid_df_EU[['province', 'country_name', 'confirmed', 'confirmed_diff']].copy()
-# covid_df_EU_con_diff['2023-03-08'] = covid_df_EU_con_diff['confirmed'] - covid_df_EU_con_diff['confirmed_diff']
-# covid_df_EU_con_diff['confirmed_increase_%'] = (((covid_df_EU_con_diff['confirmed'] - covid_df_EU_con_diff['2023-03-08']) / covid_df_EU_con_diff['2023-03-08']) * 100)
-# covid_df_EU_con_diff.rename(columns={'confirmed':'2023-03-09'}, inplace=True)
-# covid_df_EU_con_diff = covid_df_EU_con_diff.reindex(columns=['country_name', 'province', 'confirmed_diff','confirmed_increase_%', '2023-03-08', '2023-03-09',])
-# #herhalen van soortgelijke berekeningen voor de deaths en active cases
-# covid_df_EU_dea_diff = covid_df_EU[['province', 'country_name', 'deaths', 'deaths_diff']].copy()
-# covid_df_EU_dea_diff['2023-03-08'] = covid_df_EU_dea_diff['deaths'] - covid_df_EU_dea_diff['deaths_diff']
-# covid_df_EU_dea_diff['deaths_increase_%'] = (((covid_df_EU_dea_diff['deaths'] - covid_df_EU_dea_diff['2023-03-08']) / covid_df_EU_dea_diff['2023-03-08']) * 100)
-# covid_df_EU_dea_diff.rename(columns={'deaths':'2023-03-09'}, inplace=True)
-# covid_df_EU_dea_diff = covid_df_EU_dea_diff.reindex(columns=['country_name', 'province', 'deaths_diff', 'deaths_increase_%', '2023-03-08', '2023-03-09'])
-# covid_df_EU_dea_diff['deaths_increase_%'] = covid_df_EU_dea_diff['deaths_increase_%'].fillna(0)
 
-# covid_df_EU_act_diff = covid_df_EU[['province', 'country_name', 'active', 'active_diff']].copy()
-# covid_df_EU_act_diff['2023-03-08'] = covid_df_EU_act_diff['active'] - covid_df_EU_act_diff['active_diff']
-# covid_df_EU_act_diff['active_increase_%'] = (((covid_df_EU_act_diff['active'] - covid_df_EU_act_diff['2023-03-08']) / covid_df_EU_act_diff['2023-03-08']) * 100)
-# covid_df_EU_act_diff.rename(columns={'active':'2023-03-09'}, inplace=True)
-# covid_df_EU_act_diff = covid_df_EU_act_diff.reindex(columns=['country_name', 'province', 'active_diff', 'active_increase_%', '2023-03-08', '2023-03-09'])
-# covid_df_EU_act_diff['active_increase_%'] = covid_df_EU_act_diff['active_increase_%'].fillna(0)
-#Samenvoegen van de data in een dataframe voor toename percentage
-# covid_df_EU_increase_pct = covid_df_EU_act_diff[['province', 'country_name', 'active_increase_%']].merge(
-#     covid_df_EU_con_diff[['province', 'country_name', 'confirmed_increase_%']],
-#     on=['province', 'country_name'],
-#     how='inner').merge(
-#         covid_df_EU_dea_diff[['province', 'country_name', 'deaths_increase_%']],
-#         on=['province', 'country_name'],
-#         how='inner'
-#     )
-# # Herschikken van de kolommen in de dataset
-# covid_df_EU_increase_pct = covid_df_EU_increase_pct.reindex(
-#     columns=['country_name', 'province', 'active_increase_%', 'confirmed_increase_%', 'deaths_increase_%'])
 # Titel voor het dashboard
 st.header('COVID-19 Toename Percentage Dashboard')
 # Dropdown voor het selecteren van een land
@@ -279,23 +233,7 @@ fig_scat.update_layout(
 # Weergeven van de scatter plot en R² waarde
 st.plotly_chart(fig_scat)
 st.write(f"R²-waarde voor de volledige regressie: {r2_full:.4f}")
-
-
-# Tekst omtrent data kwaliteit
-st.subheader('Discussie over Data Kwaliteit')
-st.write("""
-De dataset die in deze analyse is gebruikt, bevat geen ontbrekende waarden, wat betekent dat alle statistieken volledig zijn vertegenwoordigd. Dit vormt een solide basis voor een nauwkeurige analyse van COVID-19 gevallen en sterfgevallen.
-
-Daarnaast zijn mogelijke uitschieters gemarkeerd tijdens de verkenning, wat kan duiden op provincies met ongewoon hoge of lage aantallen gevallen. Deze uitschieters zijn opgenomen in de analyse, maar worden gemarkeerd voor verdere beoordeling.
-
-Door de volledigheid en betrouwbaarheid van de data te waarborgen, zullen de inzichten die uit dit dashboard worden getrokken waarschijnlijk de ware COVID-19 trends in de Europese regio’s weerspiegelen.
-""")
-#Disclaimer
-
-st.subheader('Disclaimer')
-st.write("""Ook al bevat de dataset geen ontbrekenden waarden, zijn de provincies niet altijd accuraat. Zo zijn er EU-landen die wel provincies/regio's bevatten, maar dat niet is aangegeven in de dataset. Zo lijkt het dus alsof sommige landen geen provincies hebben terwijl dit wel het geval is.""")
-
-# ======================================================================================================================================== #
+# =================================================================================================================================== #
 # Function to parse the 'region' column
 def parse_region(region_str):
     try:
@@ -305,20 +243,7 @@ def parse_region(region_str):
     except json.JSONDecodeError:
         return {}  # Return an empty dictionary if parsing fails
 
-# # Apply parsing to the 'region' column
-# df['region'] = df['region'].apply(parse_region)
-
-# # Extract 'lat' and 'long' from the parsed 'region' dictionaries
-# df['Lat'] = df['region'].apply(lambda x: x.get('lat'))
-# df['Lon'] = df['region'].apply(lambda x: x.get('long'))
-# df['province'] = df['region'].apply(lambda x: x.get('province'))
-# df['name'] = df['region'].apply(lambda x: x.get('name'))
-
-# # Convert 'Lat' and 'Lon' to numeric, coercing errors to NaN
-# df['Lat'] = pd.to_numeric(df['Lat'], errors='coerce')
-# df['Lon'] = pd.to_numeric(df['Lon'], errors='coerce')
-
-# # Filter data to avoid clutter (e.g., show only locations with confirmed cases > 0)
+# Filter data to avoid clutter (e.g., show only locations with confirmed cases > 0)
 df_filtered = df[df['confirmed'] > 0]
 
 # Create a Folium map
@@ -379,6 +304,24 @@ st.write("Deze kaart visualiseert bevestigde COVID-19-gevallen per regio. Gebrui
 
 # Embed the map HTML in Streamlit
 st.components.v1.html(map_html, width=800, height=600)
+
+# =================================================================================================================================== #
+
+# Tekst omtrent data kwaliteit
+st.subheader('Discussie over Data Kwaliteit')
+st.write("""
+De dataset die in deze analyse is gebruikt, bevat geen ontbrekende waarden, wat betekent dat alle statistieken volledig zijn vertegenwoordigd. Dit vormt een solide basis voor een nauwkeurige analyse van COVID-19 gevallen en sterfgevallen.
+
+Daarnaast zijn mogelijke uitschieters gemarkeerd tijdens de verkenning, wat kan duiden op provincies met ongewoon hoge of lage aantallen gevallen. Deze uitschieters zijn opgenomen in de analyse, maar worden gemarkeerd voor verdere beoordeling.
+
+Door de volledigheid en betrouwbaarheid van de data te waarborgen, zullen de inzichten die uit dit dashboard worden getrokken waarschijnlijk de ware COVID-19 trends in de Europese regio’s weerspiegelen.
+""")
+#Disclaimer
+
+st.subheader('Disclaimer')
+st.write("""Ook al bevat de dataset geen ontbrekenden waarden, zijn de provincies niet altijd accuraat. Zo zijn er EU-landen die wel provincies/regio's bevatten, maar dat niet is aangegeven in de dataset. Zo lijkt het dus alsof sommige landen geen provincies hebben terwijl dit wel het geval is.""")
+
+# ======================================================================================================================================== #
 
 end_time = time.perf_counter()
 st.write(f"Total execution time: {end_time - start_time} seconds")
