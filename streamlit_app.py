@@ -241,7 +241,7 @@ if selected_countries:
     st.plotly_chart(fig)
         
 else:
-    st.write("Selecteer ten minste één land om een vergelijking te maken."
+    st.write("Selecteer ten minste één land om een vergelijking te maken.")
 
 # =================================================================================================================================== #
 #Doormiddel van streamlit schrijven we headers en een stuk tekst
