@@ -44,7 +44,7 @@ Het dashboard is ontworpen om overheden, gezondheidsautoriteiten en burgers te h
 
 # ======================================================================================================================================== #
 # Load the CSV file
-covid_df_EU = pd.read_csv("Case2vb.csv")
+covid_df_EU = pd.read_csv("Case2vb_preprocessed.csv")
 df = covid_df_EU.copy() 
 # Check if `region` column needs parsing
 def parse_region(region_str):
