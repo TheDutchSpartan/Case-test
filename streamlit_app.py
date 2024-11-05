@@ -396,42 +396,28 @@ m.get_root().html.add_child(folium.Element(legend_html))
 # Create a marker cluster for better performance
 marker_cluster = MarkerCluster().add_to(m)
 
-# Define a function to get color based on the number of confirmed cases
-def get_color(cases):
-    if cases <= 100:
-        return 'green'
-    elif cases <= 1000:
-        return 'yellow'
-    elif cases <= 5000:
-        return 'orange'
-    else:
-        return 'crimson'
+# Legend HTML (add this line to finalize the legend)
+m.get_root().html.add_child(folium.Element(legend_html))
 
-# Iterate over the filtered DataFrame to add markers to the map
-for city in df_filtered.itertuples():
-    if pd.notna(city.Lat) and pd.notna(city.Lon):  # Ensure coordinates are valid
-        folium.CircleMarker(
-            location=[city.Lat, city.Lon],
-            popup=(f'Country name: {city.name}<br>'
-                   f'Country ABV: {city.country}<br>'
-                   f'Province: {city.province}<br>'
-                   f'Confirmed: {city.confirmed}<br>'
-                   f'Deaths: {city.deaths}'),
-            radius=float(city.confirmed) * 0.00001,  # Adjust the size based on confirmed cases
-            color=get_color(city.confirmed),
-            fill=True,
-            fill_color=get_color(city.confirmed),
-            fill_opacity=0.6
-        ).add_to(marker_cluster)
+# Adding MarkerCluster for locations with confirmed cases
+marker_cluster = MarkerCluster().add_to(m)
+for idx, row in df_filtered.iterrows():
+    folium.Marker(
+        location=[row['Lat'], row['Lon']],
+        popup=f"<strong>Country:</strong> {row['country_name']}<br>"
+              f"<strong>Province:</strong> {row['province']}<br>"
+              f"<strong>Confirmed Cases:</strong> {row['confirmed']}<br>"
+              f"<strong>Deaths:</strong> {row['deaths']}",
+        icon=folium.Icon(color='green' if row['confirmed'] < 100 else 
+                         'orange' if row['confirmed'] < 1000 else 
+                         'red')
+    ).add_to(marker_cluster)
 
-# Save the map to an HTML file
-m.save("C:\\Users\\Jym\\Desktop\\covid_map.html")
+# Display map in Streamlit
+st.header("COVID-19 Cases Map")
+st.write("A geographical overview of COVID-19 cases in the EU.")
+st.components.v1.html(m._repr_html_(), height=600)
 
-
-m.get_root().html.add_child(folium.Element(description_html))
-
-# To display the map in a Jupyter Notebook, use the following line
-display(m)
 
 end_time = time.perf_counter()
 st.write(f"Total execution time: {end_time - start_time} seconds")
