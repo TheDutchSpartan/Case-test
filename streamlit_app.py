@@ -169,7 +169,7 @@ st.header('COVID-19 Toename Percentage Dashboard')
 # Dropdown voor het selecteren van een land
 
 # Aanmaken van een staafdiagram met plotly
-selected_countries = st.multiselect('Selecteer landen om te vergelijken', covid_df_EU_increase_pct['country_name'].unique())
+selected_countries = st.multiselect('Selecteer landen om te vergelijken', covid_df_EU['country_name'].unique())
 fig = go.Figure()
 
 for country in selected_countries:
