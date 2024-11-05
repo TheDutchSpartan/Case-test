@@ -96,7 +96,6 @@ else:
     st.dataframe(missing_data)
 
 # Extract province data en haalt de entries weg waar province is 'Unknown'
-covid_df_EU['province'] = covid_df_EU['region'].apply(lambda x: x.get('province'))
 covid_df_EU = covid_df_EU[covid_df_EU['province'] != 'Unknown']
 
 # Groepeer de data bij province en calculate de som van confirmed cases en deaths
